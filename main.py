@@ -1,7 +1,5 @@
 from code_1 import Vertice, Graph, Implication
 from pyvis.network import Network
-import networkx as nx
-from collections import defaultdict
 
 COLORS = {1: "red", 2: "blue", 3: "green"}
 

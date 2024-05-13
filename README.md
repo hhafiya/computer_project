@@ -1,4 +1,16 @@
-# computer_project
+# 2-SAT for 3 Coloring
+
+### Usage
+
+Docker preinstalled
+
+```shell
+git clone https://github.com/hhafiya/computer_project.git
+docker build -t 2-sat .
+docker run 2-sat
+```
+
+
 2-SAT problem
 Для реалізації задачі 2-SAT ми створили три класи: Vertice, Graph та Implication.
 •	Також ми додатково використали defaultdict з бібліотеки collections для зручнішої роботи зі словниками 
@@ -236,6 +248,7 @@ imp = Implication(graph.graph)
 imp.recolor_graph()
 
 На вхід дано такий файл:
+```
 1,2,0,2
 1,3,0,1
 1,4,0,2
@@ -244,37 +257,17 @@ imp.recolor_graph()
 2,5,2,1
 3,4,1,2
 4,5,2,1
-
-Після виконання read_file:
-defaultdict(<class 'list'>, {(v_1: color: blue; start_color: blue)
-: [(v_2: color: red; start_color: red)
-, (v_3: color: green; start_color: green)
-, (v_4: color: red; start_color: red)
-, (v_5: color: green; start_color: green)
-, (v_6: color: green; start_color: green)
-], (v_2: color: red; start_color: red)
-: [(v_1: color: blue; start_color: blue)
-, (v_5: color: green; start_color: green)
-], (v_3: color: green; start_color: green)
-: [(v_1: color: blue; start_color: blue)
-, (v_4: color: red; start_color: red)
-], (v_4: color: red; start_color: red)
-: [(v_1: color: blue; start_color: blue)
-, (v_3: color: green; start_color: green)
-, (v_5: color: green; start_color: green)
-], (v_5: color: green; start_color: green)
-: [(v_1: color: blue; start_color: blue)
-, (v_2: color: red; start_color: red)
-, (v_4: color: red; start_color: red)
-], (v_6: color: green; start_color: green)
-: [(v_1: color: blue; start_color: blue)
+```
 Остаточний результат перефарбованого графа:
-[(v_3: color: blue; start_color: green)
-, (v_4: color: green; start_color: red)
-, (v_5: color: blue; start_color: green)
-, (v_2: color: green; start_color: red)
-, (v_1: color: red; start_color: blue)
-, (v_6: color: blue; start_color: green)
-Зміни можна побачити на графіку:
- Початковий граф
- Результат
+```
+[(v_6: color: blue; start_color: green)
+, (v_3: color: red; start_color: green)
+, (v_4: color: blue; start_color: red)
+, (v_5: color: red; start_color: green)
+, (v_2: color: blue; start_color: red)
+, (v_1: color: green; start_color: blue)
+]
+```
+Результат можна побачити на картинці
+![test_file.png](docs/test_file.png)
+
