@@ -24,13 +24,16 @@ class Vertice:
         self.visited = False
         self._start_color = start_color or self.color
 
+    def to_tuple(self):
+        return (self.name, self.color)
+
     def __repr__(self):
         """
         Method for representation of the object
         :return: string representation of the object
         """
         #return f"(v_{self.name}: color: {COLORS[self.color]}; start_color: {COLORS[self._start_color]})\n"
-        return f"(v_{self.name}: color: {self.color})"
+        return  f"(v_{self.name} color: {self.color}; start_color: {self._start_color})"
 
     def __eq__(self, other):
         """
@@ -62,6 +65,7 @@ class Graph:
         Constructor of the class
         """
         self.graph = defaultdict(list)
+        self.result = defaultdict(list)
     
     def read_file(self, filename):
         """
@@ -86,17 +90,6 @@ class Implication:
         self.scc = []
         self.result = []
 
-    def old_cnf(self):
-        for node in self.graph:
-            possible_col = [1, 2, 3]
-            possible_col.remove(node.color)
-            self.cnf.append(tuple([(node, new_col) for new_col in possible_col]))
-            self.cnf.append(tuple([(node, -new_col) for new_col in possible_col]))
-            for neighbour in self.graph[node]:
-                for new_col in possible_col:
-                    if neighbour.color != new_col and \
-                            tuple([(neighbour, -new_col), (node, -new_col)]) not in self.cnf:
-                        self.cnf.append(tuple([(node, -new_col), (neighbour, -new_col)]))
 
     def generate_cnf(self):
         for node in self.graph:
@@ -151,12 +144,10 @@ class Implication:
 
     def tarjan(self):
         result = []
-        visited = []
         order = []
 
         for vertex in sorted(self.imp_graph.keys(), reverse=True):
-            if vertex not in visited:
-                order.extend(self.dfs(vertex, self.imp_graph))
+            order.extend(self.dfs(vertex, self.imp_graph))
 
         new_visited = []
         for vertex in reversed(order):
@@ -173,7 +164,6 @@ class Implication:
         self.generate_implication_graph()
         self.create_reverse_graph()
         self.scc = self.tarjan()
-        print(self.scc)
         for connections in reversed(self.scc):
             if all([False for x in connections if Vertice(x.name, -x.color) not in connections]):
                 return "No solution"
@@ -188,18 +178,3 @@ class Implication:
                     if not any(v.name == new_vertice.name for v in self.result):
                         self.result.append(new_vertice)
         return
-
-graph = Graph()
-graph.read_file('graph.csv')
-imp = Implication(graph.graph)
-# imp.generate_cnf()
-# print(len(imp.cnf))
-# print(imp.cnf)
-# imp.generate_implication_graph()
-# print((imp.imp_graph))
-# imp.create_reverse_graph()
-# print(imp.reverse_graph)
-# print(imp.scc())
-imp.recolor_graph()
-print(imp.result)
-
