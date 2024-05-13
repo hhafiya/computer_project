@@ -4,11 +4,16 @@ Coloring graph in 3 colors
 """
 import csv
 from collections import defaultdict
+import enum
+COLORS = {1:'blue', 2:'green', 3:'red'}
+
+
+
 class Vertice:
     """
     Class for vertices of the graph
     """
-    def __init__(self, name, color):
+    def __init__(self, name, color, start_color = None):
         """
         Constructor of the class
         :param name: name of the vertice
@@ -17,13 +22,15 @@ class Vertice:
         self.name = name
         self.color = color+1
         self.visited = False
+        self._start_color = start_color or self.color
 
     def __repr__(self):
         """
         Method for representation of the object
         :return: string representation of the object
         """
-        return f"v_{self.name} {self.color}"
+        #return f"(v_{self.name}: color: {COLORS[self.color]}; start_color: {COLORS[self._start_color]})\n"
+        return f"(v_{self.name}: color: {self.color})"
 
     def __eq__(self, other):
         """
@@ -42,6 +49,9 @@ class Vertice:
         :return: hash value of the object
         """
         return hash((self.name, self.color))
+
+
+
     
 class Graph:
     """
@@ -73,6 +83,8 @@ class Implication:
         self.cnf = set()
         self.imp_graph = defaultdict(list)
         self.reverse_graph = defaultdict(list)
+        self.scc = []
+        self.result = []
 
     def old_cnf(self):
         for node in self.graph:
@@ -90,12 +102,12 @@ class Implication:
         for node in self.graph:
             possible_col = [1, 2, 3]
             possible_col.remove(node.color)
-            self.cnf.add(tuple([Vertice(node.name, new_col-1) for new_col in possible_col]))
-            self.cnf.add(tuple([Vertice(node.name, -new_col-1) for new_col in possible_col]))
+            self.cnf.add(tuple([Vertice(node.name, new_col-1, node._start_color) for new_col in possible_col]))
+            self.cnf.add(tuple([Vertice(node.name, -new_col-1, node._start_color) for new_col in possible_col]))
             for neighbour in self.graph[node]:
                 for new_col in possible_col:
-                    if neighbour.color != new_col and tuple([Vertice(neighbour.name, -new_col-1), Vertice(node.name, -new_col-1)]) not in self.cnf:
-                        self.cnf.add(tuple([Vertice(node.name, -new_col-1), Vertice(neighbour.name, -new_col-1)]))
+                    if neighbour.color != new_col and tuple([Vertice(neighbour.name, -new_col-1, node._start_color), Vertice(node.name, -new_col-1, node._start_color)]) not in self.cnf:
+                        self.cnf.add(tuple([Vertice(node.name, -new_col-1, node._start_color), Vertice(neighbour.name, -new_col-1, node._start_color)]))
 
         self.cnf = sorted(self.cnf)
 
@@ -103,8 +115,8 @@ class Implication:
         for tup in self.cnf:
             first_node = tup[0]
             second_node = tup[1]
-            new_first = (Vertice(first_node.name, -first_node.color-1))
-            new_second = (Vertice(second_node.name, -second_node.color-1))
+            new_first = (Vertice(first_node.name, -first_node.color-1, first_node._start_color))
+            new_second = (Vertice(second_node.name, -second_node.color-1, second_node._start_color))
             self.imp_graph[new_first].append(second_node)
             self.imp_graph[new_second].append(first_node)
 
@@ -137,7 +149,7 @@ class Implication:
 
         return visited_path
 
-    def scc(self):
+    def tarjan(self):
         result = []
         visited = []
         order = []
@@ -155,16 +167,39 @@ class Implication:
 
         return result
 
+    def recolor_graph(self):
 
+        self.generate_cnf()
+        self.generate_implication_graph()
+        self.create_reverse_graph()
+        self.scc = self.tarjan()
+        print(self.scc)
+        for connections in reversed(self.scc):
+            if all([False for x in connections if Vertice(x.name, -x.color) not in connections]):
+                return "No solution"
+            for vertice in reversed(connections):
+                if len(self.result) == len(self.graph):
+                    break
+                if vertice.color > 0 and vertice not in self.result:
+                    if not any(v.name == vertice.name for v in self.result):
+                        self.result.append(vertice)
+                elif vertice.color < 0:
+                    new_vertice = Vertice(vertice.name, int(({1 , 2, 3} - {abs(vertice.color), vertice._start_color}).pop())-1, vertice._start_color)
+                    if not any(v.name == new_vertice.name for v in self.result):
+                        self.result.append(new_vertice)
+        return
 
 graph = Graph()
 graph.read_file('graph.csv')
 imp = Implication(graph.graph)
-imp.generate_cnf()
-print(len(imp.cnf))
-print(imp.cnf)
-imp.generate_implication_graph()
-print((imp.imp_graph))
-imp.create_reverse_graph()
-print(imp.reverse_graph)
-print(imp.scc())
+# imp.generate_cnf()
+# print(len(imp.cnf))
+# print(imp.cnf)
+# imp.generate_implication_graph()
+# print((imp.imp_graph))
+# imp.create_reverse_graph()
+# print(imp.reverse_graph)
+# print(imp.scc())
+imp.recolor_graph()
+print(imp.result)
+
