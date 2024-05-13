@@ -3,28 +3,38 @@ from pyvis.network import Network
 import networkx as nx
 from collections import defaultdict
 
-COLORS = {1:"red", 2:"blue", 3:"green"}
+COLORS = {1: "red", 2: "blue", 3: "green"}
 
-if __name__ == '__main__':
-    vis_graph = defaultdict(list)
+def create_graph(path:str):
+
     graph = Graph()
-    graph.read_file('graph.csv')
+    graph.read_file(path)
     imp = Implication(graph.graph)
     imp.recolor_graph()
-    print(graph.graph)
+
+    print(imp.result)
+    return graph, imp.result
+
+
+def visualize(graph: Graph, result: list[Vertice]):
 
     pairs = [(x.name, y.name) for x in graph.graph for y in graph.graph[x]]
-    colors = {x.name: COLORS[x.color] for x in imp.result}
 
     nt = Network(notebook=True, cdn_resources="remote",
                  bgcolor="#222222",
                  font_color="white",
                  height="1000px",
-                 width="100%",)
-    for i in graph.graph:
-        nt.add_node(i.name, label=f"v_{i.name}", color = colors[i.color], shape='dot')
-    for i in pairs:
-        nt.add_edge(*i, color="white")
+                 width="100%", )
+
+
+    for node in result:
+        nt.add_node(node.name, label=f"v_{node.name}", color=COLORS[node.color], shape='dot')
+
+    for edge in pairs:
+        nt.add_edge(*edge, color="white")
 
     nt.show('nx.html')
 
+
+if __name__ == '__main__':
+    visualize(*create_graph('graph.csv'))
