@@ -1,5 +1,9 @@
 from code_1 import Vertice, Graph, Implication
 from pyvis.network import Network
+import os
+import webbrowser
+import http.server
+import socketserver
 
 COLORS = {1: "red", 2: "blue", 3: "green"}
 
@@ -32,7 +36,13 @@ def visualize(graph: Graph, result: list[Vertice]):
         nt.add_edge(*edge, color="white")
 
     nt.show('nx.html')
+    webbrowser.open_new_tab('nx.html')
 
 
 if __name__ == '__main__':
     visualize(*create_graph('graph.csv'))
+
+    PORT = 8000
+    Handler = http.server.SimpleHTTPRequestHandler
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        httpd.serve_forever()
