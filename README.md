@@ -6,15 +6,17 @@ Docker preinstalled
 
 ```shell
 git clone https://github.com/hhafiya/computer_project.git
-docker build -t 2-sat .
-docker run -p 8000:8000 2-sat
+pip install virtualenv
+python -m venv <virtual-environment-name>
+pip install networkx pyvis
+python3 main.py
 ```
-### navigate to http://localhost:8000/nx.html to see result
+ ### Open nx.html to see result
 
 
 
 
-2-SAT problem
+### 2-SAT problem
 Для реалізації задачі 2-SAT ми створили три класи: Vertice, Graph та Implication.
 •	Також ми додатково використали defaultdict з бібліотеки collections для зручнішої роботи зі словниками 
 

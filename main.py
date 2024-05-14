@@ -41,8 +41,3 @@ def visualize(graph: Graph, result: list[Vertice]):
 
 if __name__ == '__main__':
     visualize(*create_graph('graph.csv'))
-
-    PORT = 8000
-    Handler = http.server.SimpleHTTPRequestHandler
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        httpd.serve_forever()
