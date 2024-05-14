@@ -159,7 +159,7 @@ class Implication:
         self.generate_implication_graph()
         self.scc = self.tarjan()
         for connections in sorted(self.scc, key=lambda x: len(x)):
-            if any([False for x in connections if Vertice(x.name, -x.color) not in connections]):
+            if any([False if Vertice(x.name, -x.color) not in connections else True for x in connections]):
                 return "No solution"
             for vertice in reversed(connections):
                 if len(self.result) == len(self.graph):

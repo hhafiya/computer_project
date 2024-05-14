@@ -35,4 +35,4 @@ def visualize(graph: Graph, result: list[Vertice]):
 
 
 if __name__ == '__main__':
-    visualize(*create_graph('graph.csv'))
+    visualize(*create_graph('test.csv'))
