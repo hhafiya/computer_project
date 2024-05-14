@@ -113,6 +113,7 @@ class Implication:
         for vert in self.imp_graph:
             for node in self.imp_graph[vert]:
                 self.reverse_graph[node] += [vert]
+
     @staticmethod
     def dfs(start_vertex, graph):
         visited = []
@@ -138,7 +139,7 @@ class Implication:
 
         return visited_path
 
-    def tarjan(self):
+    def kosaraju(self):
         result = []
         order = []
 
@@ -157,7 +158,7 @@ class Implication:
     def recolor_graph(self):
         self.generate_cnf()
         self.generate_implication_graph()
-        self.scc = self.tarjan()
+        self.scc = self.kosaraju()
         for connections in sorted(self.scc, key=lambda x: len(x)):
             if any([False for x in connections if Vertice(x.name, -x.color) not in connections]):
                 return "No solution"

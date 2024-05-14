@@ -194,7 +194,7 @@ def dfs(self, start_vertex, graph):
 Повертаємо список visited_path.
 
 ```
-def tarjan(self):
+def kosaraju(self):
         result = []
         visited = []
         order = []
@@ -213,7 +213,7 @@ def tarjan(self):
         return result
 ```
 
-Функція tarjan створена для пошуку компонент сильної зв’язності для  орієнтованого графу.  Ми виконали це завдання за допомогою Tarjan Algorithm, цей алгоритм базується на пошуку вглиб. Він найзручніший, оскільки потрібно йти вглиб лише один раз.
+Функція kosaraju створена для пошуку компонент сильної зв’язності для  орієнтованого графу.  Ми виконали це завдання за допомогою Tarjan Algorithm, цей алгоритм базується на пошуку вглиб. Він найзручніший, оскільки потрібно йти вглиб лише один раз.
 Алгоритм Тар'яна - варіація алгоритму пошуку в глибину, в якому під час відвідування вершини і при закінченні опрацювання вершини виконуються додаткові дії. Відвідування вершини відбувається при русі від кореня до листя, а закінчення обробки вершини відбувається на зворотному шляху. 
 Для цього алггоритму створюємо пусті списки result, visited та order.
 Йдемо циклом по всіх вершинах графа посортованого навпаки графу імплікацій, якщо вершина не в visited, додаємо в order рузультати виконання функції dfs з початковою вершиною vertex. 
@@ -229,7 +229,7 @@ def tarjan(self):
         self.generate_cnf()
         self.generate_implication_graph()
         self.create_reverse_graph()
-        self.scc = self.tarjan()
+        self.scc = self.kosaraju()
         for connections in reversed(self.scc):
             if all([False for x in connections if Vertice(x.name, -x.color) not in connections]):
                 return "No solution"
