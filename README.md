@@ -6,12 +6,17 @@ Docker preinstalled
 
 ```shell
 git clone https://github.com/hhafiya/computer_project.git
-docker build -t 2-sat .
-docker run 2-sat
+pip install virtualenv
+python -m venv <virtual-environment-name>
+pip install networkx pyvis
+python3 main.py
 ```
+ ### Open nx.html to see result
 
 
-2-SAT problem
+
+
+### 2-SAT problem
 Для реалізації задачі 2-SAT ми створили три класи: Vertice, Graph та Implication.
 •	Також ми додатково використали defaultdict з бібліотеки collections для зручнішої роботи зі словниками 
 
@@ -61,7 +66,7 @@ class Vertice:
 Клас Vertice використовується для створення вершин графа. Veritice має атрибути name, color, visited та start_color та методи repr, eq, gt і hash.
 Клас Graph використовуюється для створення графу, має один атрибут graph – словник, де ключі об’єкти Vertice, а значення – списки з вершинами-сусідами, також містить функцію читання файлу для створення графу.
     
-class Graph:
+```class Graph:
     """
     Class for graph
     """
@@ -83,11 +88,13 @@ class Graph:
                 v_node = Vertice(int(v), int(color_v))
                 self.graph[u_node].append(v_node)
                 self.graph[v_node].append(u_node)
+```
 
 
 В функції read_file зчитуємо з файлу рядки: перша вершина, друга вершина, колір першої, колір другої. Додаємо в граф (словник) елементи, де ключ – перша вершина, значення – список, куди поступово додаємо сусідів(в тому числі друга вершина), та, оскільки граф неорієнтований, і навпаки: де ключ – це друга вершина.
 Implication – основний клас, де виконується сам алгоритм.
 
+```
 class Implication:
     def __init__(self, graph):
         self.graph = graph
@@ -96,8 +103,9 @@ class Implication:
         self.reverse_graph = defaultdict(list)
         self.scc = []
         self.result = []
+```
 В цьому класі є такі атрибути:  початковий граф, КНФ- множина, imp_graph – граф імплікацій, reverse-graph – перевернутий граф імплікацій, списки scc та result  - для алгоритму Тар’яна.
-
+```
    def generate_cnf(self):
         for node in self.graph:
             possible_col = [1, 2, 3]
@@ -112,7 +120,7 @@ class Implication:
                         Vertice(neighbour.name, -new_col-1, node._start_color)]))
 
         self.cnf = sorted(self.cnf)
-
+```
 Функція generate_cnf генерує кон’юктивну нормальну форму з диз’юнкцій вершин.
 Йдемо циклом по всіх вершинах графу. 
 Створюємо список з всіма кольорами posiible_col, і видаляємо звідти поточний колір, оскільки ми не можемо змінити колір вершини на той самий. 
@@ -122,6 +130,7 @@ class Implication:
  Тоді також йдемо по сусідах вершини та всередині по кольорах із possible_col і якщо колір сусідньої вершини не дорівнює можливому кольору,  додаємо диз’юнкцію заперечень поточної та сусідньої вершин з кольором, який не належить жодній з цих вершин, якщо така диз’юнкція ще не неявна в КНФ. Це робить для того, щоб не перефарбувати дві сусідні вершини в однаковий колір.
 Тоді сортуємо КНФ.
 
+```
 def generate_implication_graph(self):
         for tup in self.cnf:
             first_node = tup[0]
@@ -130,7 +139,7 @@ def generate_implication_graph(self):
             new_second = (Vertice(second_node.name, -second_node.color-1, second_node._start_color))
             self.imp_graph[new_first].append(second_node)
             self.imp_graph[new_second].append(first_node)
-
+```            
 
 Функція generate_graph створює граф імплікацій: замінюємо диз’юнкції на імплікації.
 Йдемо циклом по всі кортежах в cnf, розділяємо кортеж на first і second node. Створюємо нові вершини: ім’я відповідної наявної вершини, та заперечення її кольору.
@@ -142,10 +151,12 @@ b v a = -b -> a
 imp_graph[-a]=b
 imp_graph[-b]=a
 
+```
 def create_reverse_graph(self):
         for vert in self.imp_graph:
             for node in self.imp_graph[vert]:
                 self.reverse_graph[node] += [vert]
+```
 
 Функція create_reverse_graph створює перевернутий граф імплікацій.
 
@@ -154,6 +165,7 @@ def create_reverse_graph(self):
 reverse_graph[b] = -a
 reverse_graph[a] = -b
 
+```
 def dfs(self, start_vertex, graph):
         visited = []
         stack = [start_vertex]
@@ -177,13 +189,14 @@ def dfs(self, start_vertex, graph):
                 stack.pop()
 
         return visited_path
+```
 
 Функція dfs (Depth-first search) реалізує алгоритм пошуку вглиб для алгоритму Тар’яна. Для створення цієї функції створюємо списки visited, visited_path, і stack, що працює за принципом стеку, де вже є початкова вершина.
 Допоки стек не порожній,поточна вершина дорівнює верхньому елементу стеку, clear_stack = True, тоді перевіряємо чи поточна вершина є у visited, якщо ні, то додаємо її туди і в visited_path. Створюємо список remaining_adjacents, куди додаємо всі елементи значення графа від поточної вершини, якщо цей елемент не в visited. Якщо цей список не порожній, додаємо до стеку перший елемент цього списку і clear_stack = False, якщо clear_stack дорівнює True, то видаляємо останній елемент стеку.
 Повертаємо список visited_path.
 
-
-def tarjan(self):
+```
+def kosaraju(self):
         result = []
         visited = []
         order = []
@@ -200,8 +213,9 @@ def tarjan(self):
                 new_visited.extend(component)
 
         return result
+```
 
-Функція tarjan створена для пошуку компонент сильної зв’язності для  орієнтованого графу.  Ми виконали це завдання за допомогою Tarjan Algorithm, цей алгоритм базується на пошуку вглиб. Він найзручніший, оскільки потрібно йти вглиб лише один раз.
+Функція kosaraju створена для пошуку компонент сильної зв’язності для  орієнтованого графу.  Ми виконали це завдання за допомогою Tarjan Algorithm, цей алгоритм базується на пошуку вглиб. Він найзручніший, оскільки потрібно йти вглиб лише один раз.
 Алгоритм Тар'яна - варіація алгоритму пошуку в глибину, в якому під час відвідування вершини і при закінченні опрацювання вершини виконуються додаткові дії. Відвідування вершини відбувається при русі від кореня до листя, а закінчення обробки вершини відбувається на зворотному шляху. 
 Для цього алггоритму створюємо пусті списки result, visited та order.
 Йдемо циклом по всіх вершинах графа посортованого навпаки графу імплікацій, якщо вершина не в visited, додаємо в order рузультати виконання функції dfs з початковою вершиною vertex. 
@@ -210,13 +224,14 @@ def tarjan(self):
 Додаємо компоненту до result і new_visited.
 Функція повертає result. 
 Алгоритм полягає в тому, що шукаємо в графі цикли:
- 
+
+```
    def recolor_graph(self):
 
         self.generate_cnf()
         self.generate_implication_graph()
         self.create_reverse_graph()
-        self.scc = self.tarjan()
+        self.scc = self.kosaraju()
         for connections in reversed(self.scc):
             if all([False for x in connections if Vertice(x.name, -x.color) not in connections]):
                 return "No solution"
@@ -232,7 +247,7 @@ def tarjan(self):
                     if not any(v.name == new_vertice.name for v in self.result):
                         self.result.append(new_vertice)
         return
-
+```
 Функція recolor_graph – основна функція, що реалізовує сам алгоритм 2-sat і перефарбовує вершини. Спочатку,викликаємо всі попередні функції: generate_cnf, generate_implication_graph, create_reverse_graph, tarjan. 
 Тоді йдемо циклом по всіх connections перевернутого self.scc (результат виконання алгоритму Тар’яна). Якщо розфарбування неможливе, повертаємо “no solution”. 
 Інакше, йдемо циклом по всіх вершинах в перевернутому connections, якщо довжина результату дорівнює довжині графу, виходимо з  циклу.
@@ -241,11 +256,6 @@ def tarjan(self):
 Result – результат виконання алгоритму, де всі вершини розфарбовані.
 Отже, ми реалізували код для вирішення задачу 2-sat.
 Приклад тестування на невеликому графі:
-Код для запуску:
-graph = Graph()
-graph.read_file('graph.csv')
-imp = Implication(graph.graph)
-imp.recolor_graph()
 
 На вхід дано такий файл:
 ```
